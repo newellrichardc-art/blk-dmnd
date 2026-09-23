@@ -1,0 +1,5 @@
+const BOOKING_EMAIL = "YOUR_BOOKING_EMAIL_HERE";
+const form=document.getElementById("bookingForm"),status=document.getElementById("formStatus");
+form.addEventListener("submit",e=>{e.preventDefault();if(BOOKING_EMAIL==="YOUR_BOOKING_EMAIL_HERE"){status.textContent="Booking email is not configured yet.";return;}
+const d=new FormData(form),subject="BLK DMND Booking Inquiry — "+d.get("date")+" — "+d.get("venue"),body=["BLK DMND BOOKING INQUIRY","",`Name: ${d.get("name")}`,`Email: ${d.get("email")}`,`Phone: ${d.get("phone")||"—"}`,`Event type: ${d.get("eventType")}`,`Date: ${d.get("date")}`,`Start time: ${d.get("time")}`,`Venue: ${d.get("venue")}`,`City / location: ${d.get("location")}`,`Offered pay / budget: ${d.get("pay")}`,`Expected attendance: ${d.get("attendance")||"—"}`,"","Additional details:",d.get("details")||"—"].join("\n");
+window.location.href=`mailto:${encodeURIComponent(BOOKING_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;});
