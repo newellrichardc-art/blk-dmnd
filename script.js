@@ -6,6 +6,7 @@ const phoneField = form.elements.phone;
 const emailField = form.elements.email;
 const attendanceField = form.elements.attendance;
 
+// Keep the public Event Type choices aligned with the booking CRM lists.\nconst eventTypeField = form.elements.eventType;\nif (eventTypeField) {\n  const eventTypes = ["Wedding", "Corporate", "Private Party", "Festival", "Birthday", "Nonprofit", "Holiday Party", "Concert", "Other"];\n  eventTypeField.replaceChildren(...eventTypes.map(value => {\n    const option = document.createElement("option");\n    option.value = value;\n    option.textContent = value;\n    return option;\n  }));\n  eventTypeField.value = "Private Party";\n}\n
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function setStatus(message, isError = false) {
