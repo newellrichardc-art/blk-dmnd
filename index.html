@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BLK DMND — Bay Area Live Music</title>
+  <meta name="description" content="BLK DMND is a Bay Area creative live band based in San Francisco and Oakland. Your favorite songs, with a twist.">
+  <link rel="icon" href="assets/blk.diamond.black.PNG">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="grain"></div>
+  <header class="nav">
+    <a class="brand" href="#top"><img src="assets/blk.diamond.black.PNG" alt="BLK DMND logo"><span>BLK DMND</span></a>
+    <nav><a href="#about">About</a><a href="#media">Media</a><a href="#booking">Booking</a></nav>
+    <a class="nav-cta" href="#booking">Book the Band <span>↗</span></a>
+  </header>
+  <main id="top">
+    <section class="hero">
+      <div class="hero-media"><img class="hero-fallback" style="display:block" src="assets/KB9_1420-3_Original.jpg" alt="BLK DMND performing live"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">SAN FRANCISCO · OAKLAND · BAY AREA</p>
+        <h1>YOUR FAVORITE<br><em>SONGS.</em><br>OUR TWIST.</h1>
+        <p class="hero-copy">A collective of creatives turning familiar songs into high-energy live experiences with a Bay Area point of view.</p>
+        <div class="hero-actions"><a class="button button-light" href="#booking">Book BLK DMND <span>↗</span></a><a class="text-link" href="#media">See the vibe ↓</a></div>
+      </div>
+      <div class="hero-mark">◆</div>
+    </section>
+    <section class="ticker"><div>LIVE MUSIC <span>◆</span> CREATIVE ENERGY <span>◆</span> BAY AREA <span>◆</span> YOUR SONGS, REIMAGINED <span>◆</span> LIVE MUSIC <span>◆</span> CREATIVE ENERGY <span>◆</span></div></section>
+    <section class="intro section" id="about">
+      <div class="section-label">01 / THE BAND</div>
+      <div class="intro-grid"><div><h2>NOT JUST A COVER BAND.<br><span>A CREATIVE EXPERIENCE.</span></h2></div>
+      <div class="intro-copy"><p>BLK DMND is a group of creatives based in San Francisco and Oakland. We take the songs you already love and make them even more fun—with a twist.</p><p>From intimate gatherings to packed venues, we're built to read the room, bring the energy, and make the night feel like yours.</p><a class="arrow-link" href="#booking">Tell us about your event <span>→</span></a></div></div>
+    </section>
+    <section class="feature-photo"><img src="assets/9307FB4A-6BF6-4E2C-B2D8-78D3D1A8A7BE.JPG" alt="BLK DMND performing outdoors in the Bay Area"><div class="photo-caption">BLK DMND / LIVE IN THE BAY</div></section>
+    <section class="media section" id="media">
+      <div class="section-label">02 / THE VIBE</div><div class="media-head"><h2>MADE FOR<br><span>THE MOMENT.</span></h2><p>Big grooves. Familiar songs. Unexpected turns. Scroll through a few pieces of the BLK DMND world.</p></div>
+      <div class="gallery">
+        <figure class="gallery-card tall"><img src="assets/KB9_1420-3_Original.jpg" alt="Black and white BLK DMND performance"><figcaption>01 / LIVE ENERGY</figcaption></figure>
+        <figure class="gallery-card art"><img src="assets/IMG_2176.PNG" alt="Illustrated BLK DMND Bay Area artwork"><figcaption>02 / BAY AREA DNA</figcaption></figure>
+        <figure class="gallery-card"><img src="assets/IMG_0013.PNG" alt="BLK DMND creative portrait"><figcaption>03 / THE CREATIVES</figcaption></figure>
+      </div>
+    </section>
+    <section class="booking section" id="booking">
+      <div class="booking-panel"><div class="section-label">03 / BOOKING</div>
+        <div class="booking-grid"><div class="booking-copy"><h2>LET'S MAKE<br><span>SOMETHING HAPPEN.</span></h2><p>Tell us the basics. We'll review your event and get back to you about availability, details, and next steps.</p><div class="booking-note"><strong>QUICK INQUIRY</strong><span>Date · Time · Venue · Pay</span></div></div>
+        <form id="bookingForm" class="booking-form">
+          <div class="field-row"><label>YOUR NAME<input name="name" required placeholder="Full name"></label><label>EMAIL<input type="email" name="email" required placeholder="you@email.com"></label></div>
+          <div class="field-row"><label>PHONE<input name="phone" placeholder="(555) 555-5555"></label><label>EVENT TYPE<select name="eventType"><option>Private Party</option><option>Wedding</option><option>Corporate Event</option><option>Festival</option><option>Club / Venue</option><option>Other</option></select></label></div>
+          <div class="field-row"><label>DATE<input type="date" name="date" required></label><label>START TIME<input type="time" name="time" required></label></div>
+          <div class="field-row"><label>VENUE<input name="venue" required placeholder="Venue name"></label><label>CITY / LOCATION<input name="location" required placeholder="San Francisco, Oakland, etc."></label></div>
+          <div class="field-row"><label>OFFERED PAY / BUDGET<input name="pay" required placeholder="$"></label><label>EXPECTED ATTENDANCE<input name="attendance" placeholder="Approx. guests"></label></div>
+          <label>ANYTHING ELSE?<textarea name="details" rows="5" placeholder="Tell us about the event, set length, indoor/outdoor setup, special requests, etc."></textarea></label>
+          <button class="button button-dark" type="submit">Send Booking Inquiry <span>↗</span></button>
+          <p class="form-help">Your email app will open with the inquiry details ready to send.</p><p id="formStatus" class="form-status" role="status"></p>
+        </form></div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="footer-brand"><img src="assets/blk.diamond.black.PNG" alt=""><div><strong>BLK DMND</strong><span>SF / OAKLAND / BAY AREA</span></div></div><div class="footer-right"><a href="#booking">BOOK THE BAND →</a><span>© 2026 BLK DMND</span></div></footer>
+  <script src="script.js"></script>
+</body></html>
