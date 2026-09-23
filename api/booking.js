@@ -126,61 +126,98 @@ export default async function handler(req, res) {
     const webhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
     const webhookSecret = process.env.GOOGLE_SHEET_WEBHOOK_SECRET;
 
-    if (!gmailUser || !gmailAppPassword || !recipient) {
-      console.error("Booking configuration error: Gmail environment variables are incomplete.");
-      return json(res, 500, { ok: false, error: "Booking service is not configured yet." });
-    }
-
-    if (!webhookUrl || !webhookSecret) {
-      console.error("Booking configuration error: Google Sheet webhook variables are incomplete.");
-      return json(res, 500, { ok: false, error: "Booking service is not fully configured yet." });
-    }
-
     const subject = `BLK DMND Booking Inquiry — ${date} — ${venue}`;
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: gmailUser, pass: gmailAppPassword }
-    });
+    const gmailConfigured = Boolean(gmailUser && gmailAppPassword && recipient);
 
-    try {
-      await transporter.sendMail({
-        from: gmailUser,
-        to: recipient,
-        replyTo: email,
-        subject,
-        text: lines.join("\n")
-      });
-    } catch (error) {
-      console.error("Gmail booking notification failed:", error instanceof Error ? error.message : "unknown error");
-      return json(res, 502, {
-        ok: false,
-        error: "We couldn't send your inquiry right now. Please try again."
-      });
-    }
-
-    try {
-      const separator = webhookUrl.includes("?") ? "&" : "?";
-      const response = await fetch(webhookUrl + separator + "secret=" + encodeURIComponent(webhookSecret), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(booking)
+    // Primary sender: BLK DMND Gmail via SMTP.
+    if (gmailConfigured) {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: gmailUser, pass: gmailAppPassword }
       });
 
-      if (!response.ok) {
-        console.error("Google Sheet webhook failed with status:", response.status);
+      try {
+        await transporter.sendMail({
+          from: gmailUser,
+          to: recipient,
+          replyTo: email,
+          subject,
+          text: lines.join("\n")
+        });
+      } catch (error) {
+        console.error("Gmail booking notification failed:", error instanceof Error ? error.message : "unknown error");
         return json(res, 502, {
           ok: false,
-          error: "Your inquiry reached BLK DMND email, but the booking tracker could not be updated. Please try again or contact BLK DMND directly."
+          error: "We couldn't send your inquiry right now. Please try again."
         });
       }
-    } catch (error) {
-      console.error("Google Sheet sync error:", error instanceof Error ? error.message : "unknown error");
-      return json(res, 502, {
-        ok: false,
-        error: "Your inquiry reached BLK DMND email, but the booking tracker could not be updated. Please try again or contact BLK DMND directly."
-      });
+    } else {
+      // Temporary fallback: keep the public booking form working until Gmail
+      // App Password configuration is complete.
+      const resendKey = process.env.RESEND_API_KEY;
+      if (!resendKey) {
+        console.error("Booking configuration error: no Gmail or Resend email credentials are available.");
+        return json(res, 500, {
+          ok: false,
+          error: "Booking service is not configured yet."
+        });
+      }
+
+      try {
+        const resendResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            from: "BLK DMND <onboarding@resend.dev>",
+            to: [recipient || "newellrichardc@gmail.com"],
+            reply_to: email,
+            subject,
+            text: lines.join("\n")
+          })
+        });
+
+        if (!resendResponse.ok) {
+          const errorText = await resendResponse.text();
+          console.error("Resend fallback notification failed:", errorText);
+          return json(res, 502, {
+            ok: false,
+            error: "We couldn't send your inquiry right now. Please try again."
+          });
+        }
+      } catch (error) {
+        console.error("Resend fallback error:", error instanceof Error ? error.message : "unknown error");
+        return json(res, 502, {
+          ok: false,
+          error: "We couldn't send your inquiry right now. Please try again."
+        });
+      }
+    }
+
+    // Google Sheets is intentionally non-blocking. The email remains the source
+    // of truth while the tracker is being configured. Once the webhook variables
+    // are present, every successful inquiry is copied into the tracker.
+    if (webhookUrl && webhookSecret) {
+      try {
+        const separator = webhookUrl.includes("?") ? "&" : "?";
+        const response = await fetch(webhookUrl + separator + "secret=" + encodeURIComponent(webhookSecret), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(booking)
+        });
+
+        if (!response.ok) {
+          console.error("Google Sheet webhook failed with status:", response.status);
+        }
+      } catch (error) {
+        console.error("Google Sheet sync error:", error instanceof Error ? error.message : "unknown error");
+      }
+    } else {
+      console.warn("Google Sheet integration is not configured yet.");
     }
 
     return json(res, 200, { ok: true });
