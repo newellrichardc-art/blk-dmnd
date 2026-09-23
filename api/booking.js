@@ -228,28 +228,38 @@ export default async function handler(req, res) {
       }
     }
 
-    // Google Sheets is intentionally non-blocking. The email remains the source
-    // of truth while the tracker is being configured. Once the webhook variables
-    // are present, every successful inquiry is copied into the tracker.
-    if (webhookUrl && webhookSecret) {
-      try {
-        const separator = webhookUrl.includes("?") ? "&" : "?";
-        const response = await fetch(webhookUrl + separator + "secret=" + encodeURIComponent(webhookSecret), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(booking)
-        });
+    if (!webhookUrl || !webhookSecret) {
+      console.error("Booking configuration error: Google Sheet webhook is not configured.");
+      return json(res, 500, {
+        ok: false,
+        error: "Booking service is not fully configured yet."
+      });
+    }
 
-        if (!response.ok) {
-          console.error("Google Sheet webhook failed with status:", response.status);
-        }
-      } catch (error) {
-        console.error("Google Sheet sync error:", error instanceof Error ? error.message : "unknown error");
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...booking, webhookSecret })
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        console.error("Google Sheet webhook failed:", {
+          status: response.status,
+          error: typeof result.error === "string" ? result.error : "unknown"
+        });
+        return json(res, 502, {
+          ok: false,
+          error: "Your inquiry was received by email, but our booking tracker could not be updated. Please try again."
+        });
       }
-    } else {
-      console.warn("Google Sheet integration is not configured yet.");
+    } catch (error) {
+      console.error("Google Sheet sync error:", error instanceof Error ? error.message : "unknown error");
+      return json(res, 502, {
+        ok: false,
+        error: "Your inquiry was received by email, but our booking tracker could not be updated. Please try again."
+      });
     }
 
     return json(res, 200, { ok: true });
