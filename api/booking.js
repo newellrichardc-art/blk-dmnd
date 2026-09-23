@@ -107,6 +107,46 @@ export default async function handler(req, res) {
       details
     ];
 
+    const sheetPayload = {
+      bookingId: null,
+      submittedAt: new Date().toISOString(),
+      name,
+      email,
+      phone: phoneDigits.slice(0, 3) + "-" + phoneDigits.slice(3, 6) + "-" + phoneDigits.slice(6),
+      eventType,
+      date,
+      time,
+      venue,
+      location,
+      pay,
+      attendance,
+      details
+    };
+
+    async function syncToGoogleSheet() {
+      const webhookUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+      const webhookSecret = process.env.GOOGLE_SHEET_WEBHOOK_SECRET;
+
+      if (!webhookUrl) {
+        return { enabled: false };
+      }
+
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(webhookSecret ? { "X-BLK-DMND-SECRET": webhookSecret } : {})
+        },
+        body: JSON.stringify(sheetPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Google Sheet webhook returned " + response.status);
+      }
+
+      return { enabled: true, ok: true };
+    }
+
     const gmailUser = process.env.GMAIL_USER || "newellrichardc@gmail.com";
     const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
     const recipient = process.env.BOOKING_EMAIL || gmailUser;
@@ -130,6 +170,12 @@ export default async function handler(req, res) {
         subject,
         text: lines.join("\n")
       });
+
+      try {
+        await syncToGoogleSheet();
+      } catch (sheetError) {
+        console.error("Google Sheet sync error:", sheetError);
+      }
 
       return res.status(200).json({ ok: true });
     }
@@ -167,6 +213,12 @@ export default async function handler(req, res) {
         ok: false,
         error: "We couldn't send your inquiry right now. Please try again."
       });
+    }
+
+    try {
+      await syncToGoogleSheet();
+    } catch (sheetError) {
+      console.error("Google Sheet sync error:", sheetError);
     }
 
     return res.status(200).json({ ok: true });
