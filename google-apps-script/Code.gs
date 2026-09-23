@@ -102,9 +102,10 @@ function setupAllSheets_(ss) {
 }
 
 function getOrCreateBookings_(ss) {
-  const bookings = getOrCreateSheet_(ss, "Bookings");
-  if (bookings.getLastRow() === 0) setupBookings_(bookings, ss.getSheetByName("Lists") || getOrCreateSheet_(ss, "Lists"));
-  return bookings;
+  const requiredSheets = ["Bookings", "Dashboard", "Lists", "Instructions"];
+  const missing = requiredSheets.some(name => !ss.getSheetByName(name));
+  if (missing) setupAllSheets_(ss);
+  return ss.getSheetByName("Bookings");
 }
 
 function setupBookings_(sheet, lists) {
