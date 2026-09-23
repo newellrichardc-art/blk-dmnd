@@ -111,9 +111,9 @@
               <label>EMAIL<input type="email" name="email" required placeholder="you@email.com"></label>
             </div>
             <div class="field-row">
-              <label>PHONE<input name="phone" placeholder="(555) 555-5555"></label>
+              <label>PHONE<input type="tel" name="phone" required inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></label>
               <label>EVENT TYPE
-                <select name="eventType">
+                <select name="eventType" required>
                   <option>Private Party</option>
                   <option>Wedding</option>
                   <option>Corporate Event</option>
@@ -133,13 +133,16 @@
             </div>
             <div class="field-row">
               <label>OFFERED PAY / BUDGET<input name="pay" required placeholder="$"></label>
-              <label>EXPECTED ATTENDANCE<input name="attendance" placeholder="Approx. guests"></label>
+              <label>EXPECTED ATTENDANCE<input type="number" name="attendance" required min="1" step="1" inputmode="numeric" placeholder="Approx. guests"></label>
             </div>
             <label>ANYTHING ELSE?
-              <textarea name="details" rows="5" placeholder="Tell us about the event, set length, indoor/outdoor setup, special requests, etc."></textarea>
+              <textarea name="details" required rows="5" minlength="5" placeholder="Tell us about the event, set length, indoor/outdoor setup, special requests, etc."></textarea>
             </label>
+            <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;">
+              <label>WEBSITE<input name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
             <button class="button button-dark" type="submit">Send Booking Inquiry <span>↗</span></button>
-            <p class="form-help">Your email app will open with the inquiry details ready to send. Set your booking email in <code>script.js</code>.</p>
+            <p class="form-help">Your inquiry is sent securely from the site. We’ll email you back at the address you provide.</p>
             <p id="formStatus" class="form-status" role="status"></p>
           </form>
         </div>
@@ -161,45 +164,6 @@
     </div>
   </footer>
 
-  <script>// Replace this with the email address that should receive booking inquiries.
-const BOOKING_EMAIL = "YOUR_BOOKING_EMAIL_HERE";
-
-const form = document.getElementById("bookingForm");
-const status = document.getElementById("formStatus");
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  if (BOOKING_EMAIL === "YOUR_BOOKING_EMAIL_HERE") {
-    status.textContent = "Almost there — set your booking email in script.js before publishing.";
-    return;
-  }
-
-  const data = new FormData(form);
-  const subject = `BLK DMND Booking Inquiry — ${data.get("date")} — ${data.get("venue")}`;
-  const body = [
-    "BLK DMND BOOKING INQUIRY",
-    "",
-    `Name: ${data.get("name")}`,
-    `Email: ${data.get("email")}`,
-    `Phone: ${data.get("phone") || "—"}`,
-    `Event type: ${data.get("eventType")}`,
-    `Date: ${data.get("date")}`,
-    `Start time: ${data.get("time")}`,
-    `Venue: ${data.get("venue")}`,
-    `City / location: ${data.get("location")}`,
-    `Offered pay / budget: ${data.get("pay")}`,
-    `Expected attendance: ${data.get("attendance") || "—"}`,
-    "",
-    "Additional details:",
-    data.get("details") || "—"
-  ].join("\n");
-
-  window.location.href =
-    `mailto:${encodeURIComponent(BOOKING_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  status.textContent = "Your email app should open with the inquiry ready to send.";
-});
-</script>
+  <script src="script.js" defer></script>
 </body>
 </html>
