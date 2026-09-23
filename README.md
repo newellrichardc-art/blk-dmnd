@@ -20,3 +20,12 @@ Set these Vercel Environment Variables:
 Never commit the real App Password to GitHub.
 
 Until `GMAIL_APP_PASSWORD` is added, the API temporarily falls back to the existing Resend configuration. Once the Gmail App Password is present, Gmail is used as the sender.
+
+
+## Google Sheet tracking
+
+The booking API can also send each successful inquiry to a Google Apps Script webhook. Set these Vercel Environment Variables after the Google Sheet and Apps Script are created:
+- `GOOGLE_SHEET_WEBHOOK_URL`
+- `GOOGLE_SHEET_WEBHOOK_SECRET`
+
+The email send remains independent of the sheet sync; a temporary sheet-sync failure is logged without blocking a successful booking email.
