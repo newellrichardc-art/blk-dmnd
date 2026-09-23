@@ -1,3 +1,5 @@
+import nodemailer from "nodemailer";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
@@ -52,7 +54,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: "Please enter a valid name." });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254) {
+    if (!/^([^\s@]+)@([^\s@]+)\.([^\s@]{2,})$/.test(email) || email.length > 254) {
       return res.status(400).json({ ok: false, error: "Please enter a valid email address." });
     }
 
@@ -92,7 +94,7 @@ export default async function handler(req, res) {
       "",
       `Name: ${name}`,
       `Email: ${email}`,
-      `Phone: ${phoneDigits.slice(0,3)}-${phoneDigits.slice(3,6)}-${phoneDigits.slice(6)}`,
+      `Phone: ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6)}`,
       `Event type: ${eventType}`,
       `Date: ${date}`,
       `Start time: ${time}`,
@@ -105,9 +107,36 @@ export default async function handler(req, res) {
       details
     ];
 
+    const gmailUser = process.env.GMAIL_USER || "newellrichardc@gmail.com";
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+    const recipient = process.env.BOOKING_EMAIL || gmailUser;
+    const subject = `BLK DMND Booking Inquiry — ${date} — ${venue}`;
+
+    // Gmail is the primary sender. The authenticated Gmail account is also
+    // used as the visible From address so the message is sent as that account.
+    if (gmailAppPassword) {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: gmailUser,
+          pass: gmailAppPassword
+        }
+      });
+
+      await transporter.sendMail({
+        from: gmailUser,
+        to: recipient,
+        replyTo: email,
+        subject,
+        text: lines.join("\n")
+      });
+
+      return res.status(200).json({ ok: true });
+    }
+
+    // Temporary fallback while the Gmail App Password is being added to Vercel.
     const resendKey = process.env.RESEND_API_KEY;
-    const recipient = process.env.BOOKING_EMAIL || "newellrichardc@gmail.com";
-    const from = process.env.RESEND_FROM_EMAIL || "BLK DMND <onboarding@resend.dev>";
+    const resendFrom = process.env.RESEND_FROM_EMAIL || "BLK DMND <onboarding@resend.dev>";
 
     if (!resendKey) {
       return res.status(500).json({
@@ -123,17 +152,17 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from,
+        from: resendFrom,
         to: [recipient],
         reply_to: email,
-        subject: `BLK DMND Booking Inquiry — ${date} — ${venue}`,
+        subject,
         text: lines.join("\n")
       })
     });
 
     if (!resendResponse.ok) {
       const errorText = await resendResponse.text();
-      console.error("Resend error:", errorText);
+      console.error("Resend fallback error:", errorText);
       return res.status(502).json({
         ok: false,
         error: "We couldn't send your inquiry right now. Please try again."
