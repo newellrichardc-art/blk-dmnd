@@ -1,0 +1,7 @@
+{
+  "name": "blk-dmnd-website",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^7.0.6"
+  }
+}
