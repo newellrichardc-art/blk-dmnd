@@ -144,6 +144,38 @@ export default async function handler(req, res) {
           subject,
           text: lines.join("\n")
         });
+
+        const confirmationSubject = "BLK DMND Booking Confirmation";
+        const confirmationLines = [
+          "Thank you for your booking inquiry with BLK DMND!",
+          "",
+          "We received the following event details:",
+          "",
+          `Name: ${name}`,
+          `Event type: ${eventType}`,
+          `Date: ${date}`,
+          `Start time: ${time}`,
+          `Venue: ${venue}`,
+          `City / location: ${location}`,
+          `Offered pay / budget: ${pay}`,
+          `Expected attendance: ${attendance}`,
+          "",
+          "Additional details:",
+          details,
+          "",
+          "This email confirms that your inquiry was received. BLK DMND will review the details and follow up with you.",
+          "",
+          "Thank you,",
+          "BLK DMND"
+        ];
+
+        await transporter.sendMail({
+          from: gmailUser,
+          to: email,
+          replyTo: gmailUser,
+          subject: confirmationSubject,
+          text: confirmationLines.join("\n")
+        });
       } catch (error) {
         console.error("Gmail booking notification failed:", error instanceof Error ? error.message : "unknown error");
         return json(res, 502, {
