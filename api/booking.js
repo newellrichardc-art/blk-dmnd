@@ -159,11 +159,11 @@ export default async function handler(req, res) {
     }
 
     try {
-      const response = await fetch(webhookUrl, {
+      const separator = webhookUrl.includes("?") ? "&" : "?";
+      const response = await fetch(webhookUrl + separator + "secret=" + encodeURIComponent(webhookSecret), {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-BLK-DMND-SECRET": webhookSecret
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(booking)
       });
